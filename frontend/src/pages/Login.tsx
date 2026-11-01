@@ -1,0 +1,207 @@
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
+import { ArrowRight, Lock, Mail, Eye, EyeOff } from "lucide-react";
+
+function Login() {
+  const navigate = useNavigate();
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    setError("");
+    setLoading(true);
+
+    try {
+      const response = await axios.post(
+        "http://127.0.0.1:8000/api/auth/login/",
+        {
+          username: email,
+          password,
+        },
+      );
+
+      localStorage.setItem("access_token", response.data.access);
+      localStorage.setItem("refresh_token", response.data.refresh);
+
+      navigate("/dashboard");
+    } catch {
+      setError("Invalid email or password.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-zinc-50">
+      <div className="grid min-h-screen lg:grid-cols-2">
+
+        {/* LEFT */}
+        <div className="hidden bg-zinc-950 lg:flex lg:flex-col lg:justify-between p-12 text-white">
+          <Link to="/" className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-sky-400 font-black text-zinc-950">
+              N
+            </div>
+
+            <span className="text-xl font-black tracking-tight">
+              nexus
+            </span>
+          </Link>
+
+          <div className="max-w-lg">
+            <p className="mb-5 text-sm font-bold uppercase tracking-[0.2em] text-sky-400">
+              Welcome back
+            </p>
+
+            <h1 className="text-5xl font-black leading-tight tracking-[-0.05em]">
+              Move your work
+              <br />
+              <span className="text-sky-400">forward.</span>
+            </h1>
+
+            <p className="mt-6 max-w-md text-base leading-7 text-zinc-400">
+              Manage projects, coordinate teams, and keep every task moving
+              from one powerful workspace.
+            </p>
+          </div>
+
+          <p className="text-sm text-zinc-500">
+            © 2026 Nexus. All rights reserved.
+          </p>
+        </div>
+
+        {/* RIGHT */}
+        <div className="flex items-center justify-center px-6 py-12">
+          <div className="w-full max-w-md">
+
+            {/* MOBILE LOGO */}
+            <div className="mb-12 flex justify-center lg:hidden">
+              <Link to="/" className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-sky-400 font-black text-zinc-950">
+                  N
+                </div>
+
+                <span className="text-xl font-black tracking-tight">
+                  nexus
+                </span>
+              </Link>
+            </div>
+
+            <div>
+              <h2 className="text-3xl font-black tracking-tight text-zinc-950">
+                Welcome back
+              </h2>
+
+              <p className="mt-2 text-sm text-zinc-500">
+                Sign in to continue to your Nexus workspace.
+              </p>
+            </div>
+
+            <form onSubmit={handleLogin} className="mt-8 space-y-5">
+
+              {/* EMAIL */}
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-zinc-700">
+                  Email
+                </label>
+
+                <div className="relative">
+                  <Mail
+                    size={18}
+                    className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400"
+                  />
+
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="you@example.com"
+                    required
+                    className="w-full rounded-xl border border-zinc-200 bg-white py-3.5 pl-11 pr-4 text-sm outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-400/10"
+                  />
+                </div>
+              </div>
+
+              {/* PASSWORD */}
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-zinc-700">
+                  Password
+                </label>
+
+                <div className="relative">
+                  <Lock
+                    size={18}
+                    className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400"
+                  />
+
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Enter your password"
+                    required
+                    className="w-full rounded-xl border border-zinc-200 bg-white py-3.5 pl-11 pr-12 text-sm outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-400/10"
+                  />
+
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-700"
+                  >
+                    {showPassword ? (
+                      <EyeOff size={18} />
+                    ) : (
+                      <Eye size={18} />
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              {/* ERROR */}
+              {error && (
+                <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-600">
+                  {error}
+                </div>
+              )}
+
+              {/* BUTTON */}
+              <button
+                type="submit"
+                disabled={loading}
+                className="group flex w-full items-center justify-center gap-2 rounded-xl bg-zinc-950 py-3.5 text-sm font-bold text-white transition hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {loading ? "Signing in..." : "Sign in"}
+
+                {!loading && (
+                  <ArrowRight
+                    size={17}
+                    className="transition-transform group-hover:translate-x-1"
+                  />
+                )}
+              </button>
+            </form>
+
+            <p className="mt-8 text-center text-sm text-zinc-500">
+              Don't have an account?{" "}
+              <Link
+                to="/register"
+                className="font-bold text-zinc-950 hover:text-sky-500"
+              >
+                Create one
+              </Link>
+            </p>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default Login;
